@@ -1,0 +1,37 @@
+<!--
+SLAM（gmapping）サンプルのlaunch
+
+実行にはLRFが必要です。
+地図を生成していくためにはメガローバーを手動で移動させる必要があります。
+ゲームパッド操作サンプルまたはマウス（タッチパッド）操作サンプルを使用してください。
+
+起動コマンド： roslaunch megarover3_ros gmapping.launch
+-->
+
+<launch>
+
+  <!-- 引数 -->
+  <arg name="rover_type"  default="mega3"  doc="mega3 / outdoor / f120a" />
+  <arg name="lrf"         default="tg30"       doc="urg / tg30"/>
+  <arg name="rviz"        default="on"     doc="on / off"/>
+  <!-- <arg name="robot_prefix" default="megarover_01"/> -->
+  <arg name="set_base_frame" default="megarover_01/base_footprint"/>
+  <arg name="set_odom_frame" default="megarover_01/odom"/>
+  <arg name="set_map_frame"  default="map"/>
+
+
+  <group ns="megarover_01">
+    <!-- gmapping -->
+    <node pkg="gmapping" type="slam_gmapping" name="cnoid_rover_slam_gmapping" output="screen">
+      <param name="base_frame" value="$(arg set_base_frame)"/>
+      <param name="odom_frame" value="$(arg set_odom_frame)"/>
+      <param name="map_frame"  value="$(arg set_map_frame)"/>
+      <rosparam command="load" file="$(find megarover3_ros)/configuration_files/gmapping_params.yaml" />
+    </node>
+
+    <!-- rviz(視覚化ツール) -->
+    <group if="$(eval rviz=='on')">
+      <node pkg="rviz" type="rviz" args="-d '$(find megarover3_ros)/configuration_files/rviz/gmapping.rviz'" name="visualizer" respawn="true" />
+    </group>
+  </group>
+</launch>

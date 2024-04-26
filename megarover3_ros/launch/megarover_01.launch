@@ -1,0 +1,40 @@
+<launch>
+<arg name="robot_prefix" default="megarover_01"/>
+<arg name="use_gui" default="false" />
+
+<group ns="$(arg robot_prefix)">
+  <param name="tf_prefix" value="$(arg robot_prefix)"/>
+
+  <node pkg="rosserial_python" type="serial_node.py" name="megarover_core" output="screen">
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="baud" value="115200"/>
+  </node>
+
+  <!-- オドメトリの配信ノード -->
+  <node pkg="megarover3_ros" type="pub_odom" name="pub_odom" />
+
+  <!-- メガローバーの回転中心からLRFまでの座標変換 -->
+  <node pkg="tf" type="static_transform_publisher" name="stp_laser" args="-0.1 0 0.3627 0 0 0 $(arg robot_prefix)/base_footprint $(arg robot_prefix)/velodyne 100" />
+
+  <!-- robot description -->
+  <param name="robot_description" command="$(find xacro)/xacro $(find megarover_description)/urdf/mega3.xacro" />
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" unless="$(arg use_gui)" />
+  <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" if="$(arg use_gui)" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="robot_prefix" value="$(arg robot_prefix)" />
+    <remap from="joint_states" to="/$(arg robot_prefix)/joint_states"/>
+  </node>
+  
+  <!-- laser_filter -->
+  <arg name="laser_filter_file" default="laser_collision_zone_filter.yaml"/>
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
+    <rosparam command="load" file="$(find megarover3_ros)/configuration_files/$(arg laser_filter_file)" />
+  </node>
+
+  <!-- rviz -->
+  <!-- <node name="rviz" pkg="rviz" args="-d $(find megarover_description)/rviz/megarover.rviz" type="rviz" required="true" /> -->
+
+</group>
+</launch>

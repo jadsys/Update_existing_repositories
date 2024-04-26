@@ -1,0 +1,12 @@
+<launch>
+  <arg name="ENTITY_ID" default="megarover_02"/>
+
+  <group ns="$(arg ENTITY_ID)">
+    <arg name="use_tls" default="true" />
+    <node name="mqtt_bridge" pkg="mqtt_bridge" type="mqtt_bridge_node.py" output="screen">
+      <!-- <rosparam command="delete" param="" /> -->
+      <rosparam command="load" file="$(find mqtt_bridge)/config/mqtt_bridge_$(arg ENTITY_ID)_L.yaml" />
+      <rosparam if="$(arg use_tls)" command="load" ns="mqtt" file="$(find mqtt_bridge)/config/tls_setting_for_uoa_server.yaml" />
+    </node>
+  </group>
+</launch>

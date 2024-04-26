@@ -1,0 +1,82 @@
+#################################################################################################
+# File              : mqtt_bridge_megarover_02_L.yaml
+# Last Update Date  : 2023/12/14
+# Last Author       : S.Kumada
+#################################################################################################
+# Change history 
+# DATE        Author     Description
+# 2021/06/24  S.Kuamda   Create a new file based on "demo_params.yaml (commit: db4ee39)".
+# 2021/06/25  S.Kumada   Change serializer/deserializer params.(msgpack → json) 
+# 2021/11/19  S.Kumada   Added MapUpdateNotify topic to test the data integration with RDR.
+# 2021/11/19  S.Kumada   Add definition of topics to confirm MQTT communication in 2021.
+# 2022/09/12  S.Kumada   Add LiDAR point cloud data (2D and 3D) defined in 2022.
+# 2022/11/30  S.Kumada   Changed with message definitions so that point cloud data is sent from the Communication Manager instead of directly.
+# 2022/12/01  S.Kumada   Modify ROS topic name. (ex. ros_bridge/pub_XXX → ros_bridge/mqtt/pub_XXX)
+#                        Change the URL of LICTiA's MQTT broker.
+# 2023/12/14  S.Kumada   Modify ROS topic name. (ex. ros_bridge/mqtt/pub_XXX → ros_bridge/mqtt/pub/XXX)
+#################################################################################################
+mqtt:
+  client:
+    protocol: 4      # MQTTv311
+  connection:
+    host: mosqbrk1.lictia.jp
+    port: 47081
+    keepalive: 60
+  # private_path: robot_project/jad4lict23k
+serializer: json:dumps
+deserializer: json:loads
+
+bridge:
+  ## RDRとの通信用
+  
+  # ロボットの現在状態通知
+  - factory: mqtt_bridge.bridge:RosToMqttBridge                 # ROS→MQTT
+    msg_type: uoa_poc4_msgs.msg:r_pub_robot_state               # ROS Message type
+    topic_from: /megarover_02/ros_bridge/mqtt/pub/robot_state   # ROS toipc name
+    topic_to: data/robot/StateNotify                            # MQTT topic name
+  # - factory: mqtt_bridge.bridge:MqttToRosBridge               # MQTT→ROS
+  #   msg_type: uoa_poc4_msgs.msg:r_pub_robot_state             # ROS Message type
+  #   topic_from: data/robot/StateNotify                        # MQTT topic name
+  #   topic_to: /megarover_02/ros_bridge/pub_robot_state_mqtt   # ROS toipc name
+  
+  
+  # ロボットの局所経路
+  - factory: mqtt_bridge.bridge:RosToMqttBridge                 # ROS→MQTT
+    msg_type: uoa_poc4_msgs.msg:r_pub_local_path_plan           # ROS Message type
+    topic_from: /megarover_02/ros_bridge/mqtt/pub/local_path_plan    # ROS toipc name
+    topic_to: data/robot/LocalPathNotify                        # MQTT topic name
+  # - factory: mqtt_bridge.bridge:MqttToRosBridge # MQTT→ROS
+  #   msg_type: uoa_poc4_msgs.msg:r_pub_local_path_plan # ROS Message type
+  #   topic_from: /cmd/rdr/LocalPathNotify        # MQTT topic name
+  #   topic_to: /megarover_02/ros_bridge/pub_local_path_plan_mqtt     # ROS toipc name
+  
+  # 移動指示の確認応答
+  # - factory: mqtt_bridge.bridge:RosToMqttBridge # ROS→MQTT
+  #   msg_type: uoa_poc4_msgs.msg:     # ROS Message type
+  #   topic_from: /megarover_02/robot_pose               # ROS toipc name
+  #   topic_to: cmd/robot/NaviResponse    # MQTT topic name
+  
+  # 緊急停止指示の確認応答
+  # - factory: mqtt_bridge.bridge:RosToMqttBridge # ROS→MQTT
+  #   msg_type: uoa_poc4_msgs.msg:     # ROS Message type
+  #   topic_from: /megarover_02/robot_pose               # ROS toipc name
+  #   topic_to: cmd/robot/EmergencyResponse    # MQTT topic name
+
+  # # 地図の更新通知MQTT
+  # - factory: mqtt_bridge.bridge:MqttToRosBridge # MQTT→ROS
+  #   msg_type: uoa_poc4_msgs.msg:r_sub_map_update_notify # ROS Message type
+  #   topic_from: cmd/rdr/MapUpdateNotify        # MQTT topic name
+  #   topic_to: /megarover_02/ros_bridge/sub_map_update_notify     # ROS toipc name
+
+  # LiDAR点群データ(2D)
+  # - factory: mqtt_bridge.bridge:RosToMqttBridge                 # ROS→MQTT
+  #   msg_type: uoa_poc5_msgs.msg:r_pub_laser_scan # ROS Message type
+  #   topic_from: /megarover_02/ros_bridge/mqtt/pub/laserscan      # MQTT topic name
+  #   topic_to: data/robot/LaserScan     # ROS toipc name
+  
+  # LiDAR点群データ(3D)
+  # - factory: mqtt_bridge.bridge:RosToMqttBridge                 # ROS→MQTT
+  #   msg_type: uoa_poc5_msgs.msg:r_pub_point_cloud # ROS Message type
+  #   topic_from: /megarover_02/ros_bridge/mqtt/pub/pointcloud      # MQTT topic name
+  #   topic_to: data/robot/PointCloud     # ROS toipc name
+

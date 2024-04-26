@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<robot name="vmegarover" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find megarover_samples)/urdf/body/vbody.urdf.xacro"/>
+  <xacro:include filename="$(find megarover_samples)/urdf/wheel/vwheel.urdf.xacro"/>
+
+  <!-- =============== Link & Joint =============== -->
+  <!-- Base -->
+  <link name="base_footprint"/>
+  <xacro:base_v0 parent="base_footprint">
+    <origin xyz="0 0 0"/>
+  </xacro:base_v0>
+
+  <!-- Wheel -->
+  <!-- Right Wheel -->
+  <xacro:wheel_v0 prefix="right" parent="base_link">
+    <origin xyz="0 -0.14199 0.074742"/>
+    <axis xyz="0 1 0"/>
+  </xacro:wheel_v0>
+  <!-- Left Wheel -->
+  <xacro:wheel_v0 prefix="left" parent="base_link">
+    <origin xyz="0 0.14199 0.074742"  rpy="0 0 ${M_PI}" />
+    <axis xyz="0 -1 0"/>
+  </xacro:wheel_v0>
+
+  <!-- LiDAR joint -->
+  <joint name="LiDAR_joint" type="fixed">
+    <!-- <parent link="base_footprint"/> -->
+    <parent link="base_link"/>
+    <child link="LiDAR"/>
+    <origin xyz="0.099 0 0.1015"/>
+  </joint>
+  <!-- LiDAR link -->
+  <link name="LiDAR">
+    <visual>
+      <geometry>
+        <mesh filename="package://cnoid_rover_bringup/model/resource/other/lidar/VLP-16.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://cnoid_rover_bringup/model/resource/other/lidar/VLP-16.dae"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <xacro:box_inertial mass="0.218" height="0.07" width="0.05" depth="0.05"/>
+    </inertial>
+  </link>
+
+  <!-- ===============  Transmission =============== -->
+  <xacro:wheel_trans_v0 prefix="right"/>
+  <xacro:wheel_trans_v0 prefix="left"/>
+
+
+
+</robot>

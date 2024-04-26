@@ -1,0 +1,19 @@
+format: ChoreonoidBody
+formatVersion: 1.0
+angleUnit: degree
+name: pepper
+rootLink: base
+
+links:
+  -
+    name: base
+    jointType: fixed
+    translation: [ 0.0, 0.0, 0.605 ]
+    mass: 29.0
+    inertia: [
+      4.0950417,         0,         0,
+              0, 3.9747520,         0,
+              0,         0, 0.9933104 ]
+    elements:
+      Shape:
+        geometry: { type: Box, size: [ 0.425, 0.48, 1.21 ] }
